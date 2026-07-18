@@ -192,7 +192,7 @@ else:
     if arşiv_kayitlar:
         df_arsiv = pd.DataFrame(arşiv_kayitlar, columns=["İşlem Tipi", "Miktar (TL)", "Kategori", "Açıklama", "Tarih"])
         
- filtre_col1, filtre_col2 = st.columns(2)
+        filtre_col1, filtre_col2 = st.columns(2)
         secilen_tip = filtre_col1.selectbox("İşlem Tipine Göre Filtrele:", ["Hepsi", "Gelir", "Gider"])
         secilen_kat = filtre_col2.selectbox("Kategoriye Göre Filtrele:", ["Hepsi", "Maaş", "Kira", "Fatura", "Gıda", "Teknoloji", "Ulaşım", "E-Ticaret Satışı", "Diğer"])
 if secilen_tip != "Hepsi":
