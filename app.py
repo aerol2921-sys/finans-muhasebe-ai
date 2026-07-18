@@ -183,7 +183,7 @@ elif mod == "💼 Mali Müşavir & Akıllı Muhasebe":
 # 5. MOD 3: GEÇMİŞ İŞLEMLER ARŞİV SEKME TASARIMI
 # ==============================================================================
 
- elif mod == "🗂️ Geçmiş İşlemler Arşivi":
+elif mod == "🗂️ Geçmiş İşlemler Arşivi":
 
     st.title("🗂️ Geçmiş İşlemler Arşivi")
 
