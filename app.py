@@ -103,8 +103,8 @@ if mod == "📈 Kıdemli Finansal Analist":
                         "content": f"Kullanıcı sorusu: {girdi}"
                     }
                 ],
-                model="llama-3.3-70b-versatile"
-)
+                         model="llama-3.3-70b-versatile"
+            )
 
             st.info("✨ Mali Müşavir Analizi:")
             st.write(chat_completion.choices[0].message.content)
