@@ -7,11 +7,6 @@ import pandas as pd
 import plotly.express as px
 import kagglehub
 
-path = kagglehub.dataset_download(
-    "muhamedumarjamil/crypto-and-gold-prices-dataset-20152025"
-)
-
-st.write(path)
 import os
 import streamlit as st
 
