@@ -1,6 +1,5 @@
-groq
-sympy
-pandas
 streamlit
+groq
+pandas
 plotly
 kagglehub
