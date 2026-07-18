@@ -22,7 +22,7 @@ mod = st.sidebar.radio(
         "🗂️ Geçmiş İşlemler Arşivi",
         "🕵️ Harcama Dedektifi"
     ]
-)
+
     finans_sayfasi()
 
 elif mod == "💼 Mali Müşavir & Akıllı Muhasebe":
