@@ -5,7 +5,13 @@ import re
 from datetime import datetime
 import pandas as pd
 import plotly.express as px
+import kagglehub
 
+path = kagglehub.dataset_download(
+    "muhamedumarjamil/crypto-and-gold-prices-dataset-20152025"
+)
+
+st.write(path)
 # ==============================================================================
 # 1. API VE VERİTABANI BAĞLANTILARI
 # ==============================================================================
