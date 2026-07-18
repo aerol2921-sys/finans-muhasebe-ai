@@ -87,8 +87,7 @@ if mod == "📈 Kıdemli Finansal Analist":
         if varlik:
             with st.spinner("Yapay zeka bulut sunucularında analiz ediyor..."):
                 try:
-                    chat_completion = client.chat.completions.create()
-                     messages=[
+                    chat_completion = client.chat.completions.create()messages=[
                             {"role": "system","content": """Siz kişisel finans asistanısınız.Kullanıcının sorusuna doğrudan cevap verin.
 Gereksiz açıklama, rapor, uzun analiz yapmayın.
 Önce kullanıcının istediği sonucu verin.
