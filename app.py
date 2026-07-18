@@ -12,17 +12,17 @@ st.set_page_config(
 
 st.sidebar.title("🤖 Yapay Zeka Menüsü")
 
+st.sidebar.title("🤖 Yapay Zeka Menüsü")
+
 mod = st.sidebar.radio(
     "Çalışma Modunu Seçiniz:",
     [
         "📈 Kıdemli Finansal Analist",
         "💼 Mali Müşavir & Akıllı Muhasebe",
-        "🗂️ Geçmiş İşlemler Arşivi"
-    ]   "🕵️ Harcama Dedektifi"
+        "🗂️ Geçmiş İşlemler Arşivi",
+        "🕵️ Harcama Dedektifi"
+    ]
 )
-
-
-if mod == "📈 Kıdemli Finansal Analist":
     finans_sayfasi()
 
 elif mod == "💼 Mali Müşavir & Akıllı Muhasebe":
