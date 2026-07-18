@@ -89,17 +89,11 @@ if mod == "📈 Kıdemli Finansal Analist":
                 try:
                     chat_completion = client.chat.completions.create(
                         messages=[
-                            {{
-"role": "system",
-"content": """
-Siz kişisel finans asistanısınız.
-Kullanıcının sorusuna doğrudan cevap verin.
+                            {{"role": "system","content": """Siz kişisel finans asistanısınız.Kullanıcının sorusuna doğrudan cevap verin.
 Gereksiz açıklama, rapor, uzun analiz yapmayın.
 Önce kullanıcının istediği sonucu verin.
 Eğer matematik işlemi varsa kendiniz hesaplayın.
-"""
-}{"role": "user", "content": f"Varlık: {varlik}. Lütfen resmi piyasa raporunu kaleme alınız."}
-                        ],
+"""}{"role": "user", "content": f"Varlık: {varlik}. Lütfen resmi piyasa raporunu kaleme alınız."}],
                         model="llama-3.3-70b-versatile"
                     )
                     st.success("✨ Rapor Başarıyla Hazırlandı:")
