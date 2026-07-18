@@ -193,4 +193,20 @@ else:
         df_arsiv = pd.DataFrame(arşiv_kayitlar, columns=["İşlem Tipi", "Miktar (TL)", "Kategori", "Açıklama", "Tarih"])
         
         filtre_col1, filtre_col2 = st.columns(2)
-secilen_tip = filtre_col1.selectbox("İşlem Tipine Göre Filtrele:", ["Hepsi", "Gelir", "Gider"])secilen_kat = filtre_col2.selectbox("Kategoriye Göre Filtrele:", ["Hepsi", "Maaş", "Kira", "Fatura", "Gıda", "Teknoloji", "Ulaşım", "E-Ticaret Satışı", "Diğer"])if secilen_tip != "Hepsi":df_arsiv = df_arsiv[df_arsiv["İşlem Tipi"] == secilen_tip]if secilen_kat != "Hepsi":df_arsiv = df_arsiv[df_arsiv["Kategori"] == secilen_kat]st.markdown("---")st.dataframe(df_arsiv, use_container_width=True)st.markdown("---")if st.button("🗑️ Tüm Arşivi Temizle"):cursor.execute("DELETE FROM islemler")conn.commit()st.success("Tüm geçmiş veriler başarıyla temizlendi!")st.rerun()else:st.info("Arşivinizde henüz kayıtlı bir işlem bulunmamaktadır.")
+secilen_tip = filtre_col1.selectbox("İşlem Tipine Göre Filtrele:", ["Hepsi", "Gelir", "Gider"])
+secilen_kat = filtre_col2.selectbox("Kategoriye Göre Filtrele:", ["Hepsi", "Maaş", "Kira" , 
+                                                                                            "Fatura", "Gıda", "Teknoloji", "Ulaşım", "E-Ticaret Satışı", "Diğer"])
+if secilen_tip != "Hepsi":
+    df_arsiv = df_arsiv[df_arsiv["İşlem Tipi"] == secilen_tip]
+    if secilen_kat != "Hepsi":
+        df_arsiv = df_arsiv[df_arsiv["Kategori"] == secilen_kat]
+        st.markdown("---")
+        st.dataframe(df_arsiv, use_container_width=True)
+        st.markdown("---")
+        if st.button("🗑️ Tüm Arşivi Temizle"):
+            cursor.execute("DELETE FROM islemler")
+            conn.commit()
+            st.success("Tüm geçmiş veriler başarıyla temizlendi!")
+            st.rerun()
+        else:
+            st.info("Arşivinizde henüz kayıtlı bir işlem bulunmamaktadır.")
