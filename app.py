@@ -310,4 +310,8 @@ elif mod == "🗂️ Geçmiş İşlemler Arşivi":
                 st.success("Tüm kayıtlar silindi.")
 
                 st.rerun()
-    
+    import os
+import streamlit as st
+
+os.environ["KAGGLE_USERNAME"] = st.secrets["KAGGLE_USERNAME"]
+os.environ["KAGGLE_KEY"] = st.secrets["KAGGLE_KEY"]
