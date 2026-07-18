@@ -104,7 +104,7 @@ if mod == "📈 Kıdemli Finansal Analist":
                     }
                 ],
                 model="llama-3.3-70b-versatile"
-            )
+)
 
             st.info("✨ Mali Müşavir Analizi:")
             st.write(chat_completion.choices[0].message.content)
