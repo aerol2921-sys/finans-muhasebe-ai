@@ -151,7 +151,7 @@ elif mod == "💼 Mali Müşavir & Akıllı Muhasebe":
                                     except:
                                         continue
                         st.success("✅ Finansal kayıtlar başarıyla ayrıştırıldı ve veritabanına işlendi!")
-                        st.rerun()
+                        st.success("Finansal kayıtlar işlendi.")
             
             with st.spinner("Mali müşavir analiz raporu hazırlıyor..."):
                 try:
