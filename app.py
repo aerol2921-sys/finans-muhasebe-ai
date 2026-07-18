@@ -34,7 +34,6 @@ st.set_page_config(page_title="Finans & Muhasebe AI", page_icon="📈", layout="
 st.sidebar.title("🤖 Yapay Zeka Menüsü")
 mod = st.sidebar.radio("Çalışma Modunu Seçiniz:", ["📈 Kıdemli Finansal Analist", "💼 Mali Müşavir & Muhasebe Asistanı"])
 
-# YENİ MANTIKSAL KURALLAR EKLELEN BÜTÇE ANALİZCİSİ
 def yapay_zeka_bütce_analizcisi(metin):
     try:
         response = client.chat.completions.create(
@@ -119,7 +118,6 @@ else:
     
     if st.button("Veriyi İşle ve Analiz Et"):
         if girdi:
-            # Gelişmiş anahtar kelime tetikleyicileri listesi (Maaş ve vergi kelimeleri eklendi)
             if any(k in girdi.lower() for k in ["gelir", "gider", "kazandım", "ödedim", "harcadım", "geldi", "borç", "vergi", "maaş", "kdv", "ötv"]):
                 with st.spinner("Yapay zeka bütçeyi kuruşu kuruşuna parçalıyor..."):
                     analiz_sonucu = yapay_zeka_bütce_analizcisi(girdi)
@@ -150,7 +148,7 @@ else:
                         model="llama-3.3-70b-versatile"
                     )
                     st.info("✨ Mali Müşavir ve Profesör Analizi:")
-                    st.write(chat_completion.choices.message.content)
+                    st.write(chat_completion.choices[0].message.content)
                 except Exception as e:
                     st.error(f"Hata: {e}")
                     
@@ -172,7 +170,7 @@ else:
                              hole=0.4, color_discrete_sequence=px.colors.sequential.RdBu)
             grafik_col1.plotly_chart(fig_pie, use_container_width=True)
         else:
-            grafik_col1.info("Harcama grafiği için henüz bir 'Gider' kaydı bulunmamaktadır.")
+            st.info("Harcama grafiği için henüz bir 'Gider' kaydı bulunmamaktadır.")
             
         df_sorted = df.sort_values(by="Tarih")
         fig_line = px.line(df_sorted, x="Tarih", y="Miktar (TL)", color="İşlem Tipi",
@@ -191,3 +189,4 @@ else:
             st.success("Tüm geçmiş veriler başarıyla temizlendi!")
             st.rerun()
     else:
+        st.info("Defterinizde henüz kayıtlı bir işlem bulunmamaktadır.")
