@@ -34,29 +34,33 @@ st.set_page_config(page_title="Finans & Muhasebe AI", page_icon="📈", layout="
 st.sidebar.title("🤖 Yapay Zeka Menüsü")
 mod = st.sidebar.radio("Çalışma Modunu Seçiniz:", ["📈 Kıdemli Finansal Analist", "💼 Mali Müşavir & Muhasebe Asistanı"])
 
-# 1. FONKSİYONDAKİ SIFIR DÜZELTİLDİ
+# YENİ MANTIKSAL KURALLAR EKLELEN BÜTÇE ANALİZCİSİ
 def yapay_zeka_bütce_analizcisi(metin):
     try:
         response = client.chat.completions.create(
             messages=[
                 {
                     "role": "system",
-                    "content": """Görevin, kullanıcının girdiği finansal harcama metnini okumak ve içindeki TÜM gelir veya gider işlemlerini ayıklamaktır.
-                    Yanıtı SADECE şu formatta ver, başka hiçbir kelime veya açıklama yazma:
+                    "content": """Görevin, kullanıcının girdiği finansal metni okumak ve içindeki TÜM gelir veya gider işlemlerini ayıklamaktır.
+                    
+                    KESİN KURALLAR:
+                    1. 'vergi', 'kdv', 'ötv', 'stopaj', 'borç' gibi ödemeleri doğrudan Gider tipine bağla.
+                    2. 'maaş', 'kazanç', 'hakediş', 'satış' gibi girdileri doğrudan Gelir tipine bağla.
+                    
+                    Yanıtı SADECE şu formatta ver, başka hiçbir açıklama yazma:
                     TIP:MİKTAR:KATEGORİ (Birden fazla işlem varsa alt alta yaz)
                     
                     Kategoriler sadece şunlar olabilir: 'Maaş', 'Kira', 'Fatura', 'Gıda', 'Teknoloji', 'Ulaşım', 'E-Ticaret Satışı', 'Diğer'.
-                    Girdi: 'gelir 5000 gider 450'
+                    Girdi: 'brüt 116000 vergi 16000'
                     Yanıt:
-                    Gelir:5000:Diğer
-                    Gider:450:Diğer"""
+                    Gelir:116000:Maaş
+                    Gider:16000:Fatura"""
                 },
                 {"role": "user", "content": f"Metin: {metin}"}
             ],
             model="llama-3.3-70b-versatile"
         )
-        # SIFIR HATASI BURADA KESİN OLARAK DÜZELTİLDİ:
-        return response.choices[0].message.content.strip()
+        return response.choices.message.content.strip()
     except:
         return None
 
@@ -81,8 +85,7 @@ if mod == "📈 Kıdemli Finansal Analist":
                         model="llama-3.3-70b-versatile"
                     )
                     st.success("✨ Rapor Başarıyla Hazırlandı:")
-                    # BURADAKİ SIFIR DA SAĞLAMLAŞTIRILDI:
-                    st.write(chat_completion.choices[0].message.content)
+                    st.write(chat_completion.choices.message.content)
                 except Exception as e:
                     st.error(f"Sistem Hatası: {e}")
         else:
@@ -112,11 +115,12 @@ else:
     st.markdown("---")
     
     st.subheader("📝 Akıllı İşlem Girişi ve Matematiksel Çözüm")
-    girdi = st.text_area("İşlem verisi girin veya matematik problemi sorun:", placeholder="Örn: Bugün ofis kirası için 15000 tl ödedim VEYA x**2 - 9 = 0 denklemini çöz")
+    girdi = st.text_area("İşlem verisi girin veya matematik problemi sorun:", placeholder="Örn: Brüt 116000 vergi 16000 VEYA x**2 - 9 = 0 denklemini çöz")
     
     if st.button("Veriyi İşle ve Analiz Et"):
         if girdi:
-            if any(k in girdi.lower() for k in ["gelir", "gider", "kazandım", "ödedim", "harcadım", "geldi", "borç"]):
+            # Gelişmiş anahtar kelime tetikleyicileri listesi (Maaş ve vergi kelimeleri eklendi)
+            if any(k in girdi.lower() for k in ["gelir", "gider", "kazandım", "ödedim", "harcadım", "geldi", "borç", "vergi", "maaş", "kdv", "ötv"]):
                 with st.spinner("Yapay zeka bütçeyi kuruşu kuruşuna parçalıyor..."):
                     analiz_sonucu = yapay_zeka_bütce_analizcisi(girdi)
                     if analiz_sonucu:
@@ -133,21 +137,20 @@ else:
                                     cursor.execute("INSERT INTO islemler (tip, miktar, kategori, aciklama, tarih) VALUES (?, ?, ?, ?, ?)",
                                                    (v_tip, v_miktar, v_kategori, girdi, tarih_su_an))
                                     conn.commit()
-                        st.success("✅ Tüm işlemler başarıyla ayrıştırıldı ve veritabanına işlendi!")
+                        st.success("✅ Vergi ve maaş kayıtları başarıyla ayrıştırıldı ve veritabanına işlendi!")
                         st.rerun()
             
             with st.spinner("Mali müşavir analiz raporu hazırlıyor..."):
                 try:
                     chat_completion = client.chat.completions.create(
                         messages=[
-                            {"role": "system", "content": "Sen uluslararası standartlara hakim, resmi ve entelektüel bir Kıdemli Mali Müşavir and Matematik Profesörüsün. Kullanıcıya daima resmi bir Türkçe ile ('Siz') hitap et. Dil sızıntısı yapma, araya asla İngilizce veya İspanyolca kelimeler karıştırma. Matematiksel problemleri adım adım akademik ciddiyetle çöz."},
-                            {"role": "user", "content": f"Soru/Veri: {girdi} Lütfen kurumsal dilde yanıtlayınız."}
+                            {"role": "system", "content": "Sen uluslararası standartlara hakim, resmi ve entelektüel bir Kıdemli Mali Müşavir ve Matematik Profesörüsün. Kullanıcıya daima resmi bir Türkçe ile ('Siz') hitap et. Dil sızıntısı yapma, araya asla İngilizce veya İspanyolca kelimeler karıştırma. Matematiksel problemleri adım adım akademik ciddiyetle çöz."},
+                            {"role": "user", "content": f"Soru/Veri: {girdi} Lütfen kurumsal dilde hesaplamaları da içerecek şekilde yanıtlayınız."}
                         ],
                         model="llama-3.3-70b-versatile"
                     )
                     st.info("✨ Mali Müşavir ve Profesör Analizi:")
-                    # 2. ANA FONKSİYONDAKİ SIFIR DA BURADA DÜZELTİLDİ:
-                    st.write(chat_completion.choices[0].message.content)
+                    st.write(chat_completion.choices.message.content)
                 except Exception as e:
                     st.error(f"Hata: {e}")
                     
@@ -188,5 +191,3 @@ else:
             st.success("Tüm geçmiş veriler başarıyla temizlendi!")
             st.rerun()
     else:
-        st.info("Defterinizde henüz kayıtlı bir işlem bulunmamaktadır.")
-
