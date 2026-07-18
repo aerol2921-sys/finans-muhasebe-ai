@@ -4,7 +4,7 @@ import sqlite3
 import re
 from datetime import datetime
 import pandas as pd
-import plotly.express as px  # Yeni eklenen lüks grafik kütüphanesi
+import plotly.express as px
 
 # ==============================================================================
 # 1. API VE VERİTABANI BAĞLANTILARI
@@ -34,13 +34,21 @@ st.set_page_config(page_title="Finans & Muhasebe AI", page_icon="📈", layout="
 st.sidebar.title("🤖 Yapay Zeka Menüsü")
 mod = st.sidebar.radio("Çalışma Modunu Seçiniz:", ["📈 Kıdemli Finansal Analist", "💼 Mali Müşavir & Muhasebe Asistanı"])
 
-def yapay_zekaya_kategorize_ettir(metin):
+def yapay_zeka_bütce_analizcisi(metin):
     try:
         response = client.chat.completions.create(
             messages=[
                 {
                     "role": "system",
-                    "content": "Görevin, kullanıcının girdiği muhasebe kaydını okumak ve sadece şu kategorilerden en uygun olan TEK BİR kelimeyi seçip yazmaktır: 'Maaş', 'Kira', 'Fatura', 'Gıda', 'Teknoloji', 'Ulaşım', 'E-Ticaret Satışı', 'Diğer'. Başka hiçbir şey yazma."
+                    "content": """Görevin, kullanıcının girdiği finansal harcama metnini okumak ve içindeki TÜM gelir veya gider işlemlerini ayıklamaktır.
+                    Yanıtı SADECE şu formatta ver, başka hiçbir kelime veya açıklama yazma:
+                    TIP:MİKTAR:KATEGORİ (Birden fazla işlem varsa alt alta yaz)
+                    
+                    Kategoriler sadece şunlar olabilir: 'Maaş', 'Kira', 'Fatura', 'Gıda', 'Teknoloji', 'Ulaşım', 'E-Ticaret Satışı', 'Diğer'.
+                    Girdi: 'gelir 5000 gider 450'
+                    Yanıt:
+                    Gelir:5000:Diğer
+                    Gider:450:Diğer"""
                 },
                 {"role": "user", "content": f"Metin: {metin}"}
             ],
@@ -48,7 +56,7 @@ def yapay_zekaya_kategorize_ettir(metin):
         )
         return response.choices.message.content.strip()
     except:
-        return "Diğer"
+        return None
 
 # ==============================================================================
 # 3. MOD 1: FİNANSAL ANALİST ARAYÜZÜ
@@ -100,28 +108,30 @@ else:
         
     st.markdown("---")
     
-    # Giriş Alanı: Harcama veya Gelir Ekleme Kutusu
     st.subheader("📝 Akıllı İşlem Girişi ve Matematiksel Çözüm")
     girdi = st.text_area("İşlem verisi girin veya matematik problemi sorun:", placeholder="Örn: Bugün ofis kirası için 15000 tl ödedim VEYA x**2 - 9 = 0 denklemini çöz")
     
-    if st.button("Veriyi İşle ve Analiz Et"):
+    if st.button("Veriyi İşle and Analiz Et"):
         if girdi:
             if any(k in girdi.lower() for k in ["gelir", "gider", "kazandım", "ödedim", "harcadım", "geldi"]):
-                rakamlar = re.findall(r'\d+', girdi)
-                if rakamlar:
-                    miktar = float(rakamlar[0])
-                    tip = "Gider" if any(k in girdi.lower() for k in ["gider", "ödedim", "harcadım"]) else "Gelir"
-                    
-                    with st.spinner("Yapay zeka kategorilendiriyor..."):
-                        kategori = yapay_zekaya_kategorize_ettir(girdi)
-                        tarih_su_an = datetime.now().strftime("%Y-%m-%d %H:%M")
-                        cursor.execute("INSERT INTO islemler (tip, miktar, kategori, aciklama, tarih) VALUES (?, ?, ?, ?, ?)",
-                                       (tip, miktar, kategori, girdi, tarih_su_an))
-                        conn.commit()
-                    st.success(f"✅ Başarıyla Kaydedildi: {miktar} TL {tip} olarak '{kategori}' kategorisine işlendi! Sayfayı yenileyebilirsiniz.")
-                    st.rerun()
-                else:
-                    st.warning("Cümlenin içinde sayısal bir miktar bulunamadı.")
+                with st.spinner("Yapay zeka bütçeyi kuruşu kuruşuna parçalıyor..."):
+                    analiz_sonucu = yapay_zeka_bütce_analizcisi(girdi)
+                    if analiz_sonucu:
+                        satirlar = analiz_sonucu.split("\n")
+                        for satir in satirlar:
+                            if ":" in satir:
+                                parcalar = satir.split(":")
+                                if len(parcalar) == 3:
+                                    v_tip = parcalar[0].strip()
+                                    v_miktar = float(parcalar[1].strip())
+                                    v_kategori = parcalar[2].strip()
+                                    tarih_su_an = datetime.now().strftime("%Y-%m-%d %H:%M")
+                                    
+                                    cursor.execute("INSERT INTO islemler (tip, miktar, kategori, aciklama, tarih) VALUES (?, ?, ?, ?, ?)",
+                                                   (v_tip, v_miktar, v_kategori, girdi, tarih_su_an))
+                                    conn.commit()
+                        st.success("✅ Tüm işlemler başarıyla ayrıştırıldı ve veritabanına işlendi!")
+                        st.rerun()
             
             with st.spinner("Mali müşavir analiz raporu hazırlıyor..."):
                 try:
@@ -140,7 +150,7 @@ else:
     st.markdown("---")
     
     # ==============================================================================
-    # 5. YENİ BÖLÜM: CANLI GÖRSEL GRAFİKLER
+    # 5. GÖRSEL GRAFİKLER VE TABLO
     # ==============================================================================
     if kayitlar:
         df = pd.DataFrame(kayitlar, columns=["İşlem Tipi", "Miktar (TL)", "Kategori", "Açıklama", "Tarih"])
@@ -148,7 +158,6 @@ else:
         st.subheader("📊 Canlı Finansal Grafik Analizleri")
         grafik_col1, grafik_col2 = st.columns(2)
         
-        # Grafik 1: Kategorilere Göre Harcama Dağılımı (Pasta Grafiği)
         gider_df = df[df["İşlem Tipi"] == "Gider"]
         if not gider_df.empty:
             fig_pie = px.pie(gider_df, values="Miktar (TL)", names="Kategori", 
@@ -156,9 +165,8 @@ else:
                              hole=0.4, color_discrete_sequence=px.colors.sequential.RdBu)
             grafik_col1.plotly_chart(fig_pie, use_container_width=True)
         else:
-            grafik_col1.info("Pasta grafiğinin çizilebilmesi için henüz bir 'Gider' kaydı bulunmamaktadır.")
+            grafik_col1.info("Harcama grafiği için henüz bir 'Gider' kaydı bulunmamaktadır.")
             
-        # Grafik 2: Zaman İçindeki Gelir/Gider Dengesi (Çizgi Grafiği)
         df_sorted = df.sort_values(by="Tarih")
         fig_line = px.line(df_sorted, x="Tarih", y="Miktar (TL)", color="İşlem Tipi",
                            title="📉 Zaman İçindeki Nakit Akışı Trendi",
@@ -166,10 +174,15 @@ else:
         grafik_col2.plotly_chart(fig_line, use_container_width=True)
         
         st.markdown("---")
-        
-        # Alt Kısım: Veritabanı Tablosu Gösterimi
         st.subheader("📊 Kayıtlı Muhasebe Defteri Tablosu")
         st.dataframe(df, use_container_width=True)
+        
+        # BÜYÜK YENİLİK: VERİTABANI SIFIRLAMA BUTONU
+        st.markdown("---")
+        if st.button("🗑️ Tüm Veritabanı Kayıtlarını Sıfırla"):
+            cursor.execute("DELETE FROM islemler")
+            conn.commit()
+            st.success("Tüm geçmiş veriler başarıyla temizlendi! Sayfayı yenileyebilirsiniz.")
+            st.rerun()
     else:
         st.info("Defterinizde henüz kayıtlı bir işlem bulunmamaktadır.")
-
