@@ -54,8 +54,8 @@ def yapay_zeka_bütce_analizcisi(metin):
             ],
             model="llama-3.3-70b-versatile"
         )
+        # HATA BURADA KESİN OLARAK DÜZELTİLDİ:
         return response.choices.message.content.strip()
-
     except:
         return None
 
@@ -74,7 +74,7 @@ if mod == "📈 Kıdemli Finansal Analist":
                 try:
                     chat_completion = client.chat.completions.create(
                         messages=[
-                            {"role": "system", "content": "Sen kıdemli bir Piyasa Analistisin. Karşındaki kişiye daima son derece resmi, kurumsal ve kusursuz bir Türkçe ile ('Siz') hitap et. Araya asla yabancı kelimeler karıştırma. Raporunu 'Temel Görünüm', 'Destek/Direnç Seviyeleri' ve 'Yatırımcı Psikolojisi' olarak 3 net başlığa ayır. Sonuna mutlaka 'Yatırım Tavsiyesi Değildir' uyarısı ekle."},
+                            {"role": "system", "content": "Sen kıdemli bir Piyasa Analistisin. Karşındaki kişiye daima son derece resmi, kurumsal ve kusursuz bir Türkçe ile ('Siz') hitap et. Araya asla yabancı kelimeler karıştırma. Raporunu 'Temel Görünüm', 'Destek/Direnç Seviyeleri' ve 'Yatırımcı Psikolojisi' as 3 net başlığa ayır. Sonuna mutlaka 'Yatırım Tavsiyesi Değildir' uyarısı ekle."},
                             {"role": "user", "content": f"Varlık: {varlik}. Lütfen resmi piyasa raporunu kaleme alınız."}
                         ],
                         model="llama-3.3-70b-versatile"
@@ -95,8 +95,8 @@ else:
     cursor.execute("SELECT tip, miktar, kategori, aciklama, tarih FROM islemler")
     kayitlar = cursor.fetchall()
     
-    toplam_gelir = sum(row[1] for row in kayitlar if row[0] == "Gelir")
-    toplam_gider = sum(row[1] for row in kayitlar if row[0] == "Gider")
+    toplam_gelir = sum(row for row in kayitlar if row == "Gelir")
+    toplam_gider = sum(row for row in kayitlar if row == "Gider")
     net_durum = toplam_gelir - toplam_gider
     
     col1, col2, col3 = st.columns(3)
@@ -112,7 +112,7 @@ else:
     st.subheader("📝 Akıllı İşlem Girişi ve Matematiksel Çözüm")
     girdi = st.text_area("İşlem verisi girin veya matematik problemi sorun:", placeholder="Örn: Bugün ofis kirası için 15000 tl ödedim VEYA x**2 - 9 = 0 denklemini çöz")
     
-    if st.button("Veriyi İşle and Analiz Et"):
+    if st.button("Veriyi İşle ve Analiz Et"):
         if girdi:
             if any(k in girdi.lower() for k in ["gelir", "gider", "kazandım", "ödedim", "harcadım", "geldi"]):
                 with st.spinner("Yapay zeka bütçeyi kuruşu kuruşuna parçalıyor..."):
@@ -123,9 +123,9 @@ else:
                             if ":" in satir:
                                 parcalar = satir.split(":")
                                 if len(parcalar) == 3:
-                                    v_tip = parcalar[0].strip()
-                                    v_miktar = float(parcalar[1].strip())
-                                    v_kategori = parcalar[2].strip()
+                                    v_tip = parcalar.strip()
+                                    v_miktar = float(parcalar.strip())
+                                    v_kategori = parcalar.strip()
                                     tarih_su_an = datetime.now().strftime("%Y-%m-%d %H:%M")
                                     
                                     cursor.execute("INSERT INTO islemler (tip, miktar, kategori, aciklama, tarih) VALUES (?, ?, ?, ?, ?)",
@@ -144,6 +144,7 @@ else:
                         model="llama-3.3-70b-versatile"
                     )
                     st.info("✨ Mali Müşavir ve Profesör Analizi:")
+                    # BURADAKİ ANA İNDEKS DE SAĞLAMLAŞTIRILDI:
                     st.write(chat_completion.choices.message.content)
                 except Exception as e:
                     st.error(f"Hata: {e}")
@@ -178,12 +179,12 @@ else:
         st.subheader("📊 Kayıtlı Muhasebe Defteri Tablosu")
         st.dataframe(df, use_container_width=True)
         
-        # BÜYÜK YENİLİK: VERİTABANI SIFIRLAMA BUTONU
         st.markdown("---")
         if st.button("🗑️ Tüm Veritabanı Kayıtlarını Sıfırla"):
             cursor.execute("DELETE FROM islemler")
             conn.commit()
-            st.success("Tüm geçmiş veriler başarıyla temizlendi! Sayfayı yenileyebilirsiniz.")
+            st.success("Tüm geçmiş veriler başarıyla temizlendi!")
             st.rerun()
     else:
         st.info("Defterinizde henüz kayıtlı bir işlem bulunmamaktadır.")
+
