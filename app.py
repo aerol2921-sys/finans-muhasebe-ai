@@ -182,29 +182,132 @@ elif mod == "💼 Mali Müşavir & Akıllı Muhasebe":
 # ==============================================================================
 # 5. MOD 3: GEÇMİŞ İŞLEMLER ARŞİV SEKME TASARIMI
 # ==============================================================================
-else:
-    st.title("🗂️ Geçmiş Muhasebe ve İşlem Kayıtları Arşivi")
-    st.write("Veritabanına kaydedilen tüm finansal hareketlerin kurumsal dökümü.")
-    
-    cursor.execute("SELECT tip, miktar, kategori, aciklama, tarih FROM islemler ORDER BY id DESC")
-    arşiv_kayitlar = cursor.fetchall()
-    
-    if arşiv_kayitlar:
-        df_arsiv = pd.DataFrame(arşiv_kayitlar, columns=["İşlem Tipi", "Miktar (TL)", "Kategori", "Açıklama", "Tarih"])
-        
-        filtre_col1, filtre_col2 = st.columns(2)
-        secilen_tip = filtre_col1.selectbox("İşlem Tipine Göre Filtrele:", ["Hepsi", "Gelir", "Gider"])
-        secilen_kat = filtre_col2.selectbox("Kategoriye Göre Filtrele:", ["Hepsi", "Maaş", "Kira", "Fatura", "Gıda", "Teknoloji", "Ulaşım", "E-Ticaret Satışı", "Diğer"])
-if secilen_tip != "Hepsi":
-            df_arsiv = pd.DataFrame(arşiv_kayitlar, columns=["İşlem Tipi", "Miktar (TL)", "Kategori", "Açıklama", "Tarih"])
-        
-        filtre_col1, filtre_col2 = st.columns(2)
-        secilen_tip = filtre_col1.selectbox("İşlem Tipine Göre Filtrele:", ["Hepsi", "Gelir", "Gider"])
-        secilen_kat = filtre_col2.selectbox("Kategoriye Göre Filtrele:", ["Hepsi", "Maaş", "Kira", "Fatura", "Gıda", "Teknoloji", "Ulaşım", "E-Ticaret Satışı", "Diğer"])
-        
-        if secilen_tip != "Hepsi":
-            df_arsiv = df_arsiv[df_arsiv["İşlem Tipi"] == secilen_tip]
-        if secilen_kat != "Hepsi":
-            df_arsiv = df_arsiv[df_arsiv["Kategori"] == secilen_kat]
 
+ elif mod == "🗂️ Geçmiş İşlemler Arşivi":
+
+    st.title("🗂️ Geçmiş İşlemler Arşivi")
+
+    cursor.execute("""
+        SELECT id, tip, miktar, kategori, aciklama, tarih
+        FROM islemler
+        ORDER BY tarih DESC
+    """)
+    veriler = cursor.fetchall()
+
+    if len(veriler) == 0:
+        st.info("Henüz kayıt bulunmamaktadır.")
+
+    else:
+
+        df = pd.DataFrame(
+            veriler,
+            columns=[
+                "ID",
+                "İşlem Tipi",
+                "Miktar (TL)",
+                "Kategori",
+                "Açıklama",
+                "Tarih"
+            ]
+        )
+
+        st.subheader("🔍 Filtreleme")
+
+        col1, col2 = st.columns(2)
+
+        tip_sec = col1.selectbox(
+            "İşlem Tipi",
+            ["Tümü", "Gelir", "Gider"]
+        )
+
+        arama = col2.text_input(
+            "Açıklama veya kategori ara"
+        )
+
+        filtre = df.copy()
+
+        if tip_sec != "Tümü":
+            filtre = filtre[filtre["İşlem Tipi"] == tip_sec]
+
+        if arama:
+            filtre = filtre[
+                filtre["Kategori"].str.contains(arama, case=False, na=False)
+                |
+                filtre["Açıklama"].str.contains(arama, case=False, na=False)
+            ]
+
+        st.dataframe(
+            filtre,
+            use_container_width=True,
+            hide_index=True
+        )
+
+        st.markdown("---")
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.metric(
+                "Toplam İşlem",
+                len(filtre)
+            )
+
+        with col2:
+            st.metric(
+                "Toplam Gelir",
+                f"{filtre[filtre['İşlem Tipi']=='Gelir']['Miktar (TL)'].sum():,.2f} TL"
+            )
+
+        with col3:
+            st.metric(
+                "Toplam Gider",
+                f"{filtre[filtre['İşlem Tipi']=='Gider']['Miktar (TL)'].sum():,.2f} TL"
+            )
+
+        st.download_button(
+            label="📥 CSV Olarak İndir",
+            data=filtre.to_csv(index=False).encode("utf-8-sig"),
+            file_name="muhasebe_arsivi.csv",
+            mime="text/csv"
+        )
+
+        st.markdown("---")
+
+        st.subheader("🗑️ Kayıt Sil")
+
+        id_sec = st.selectbox(
+            "Silmek istediğiniz kaydın ID numarası",
+            filtre["ID"]
+        )
+
+        if st.button("Seçili Kaydı Sil"):
+
+            cursor.execute(
+                "DELETE FROM islemler WHERE id=?",
+                (int(id_sec),)
+            )
+
+            conn.commit()
+
+            st.success("Kayıt başarıyla silindi.")
+
+            st.rerun()
+
+        st.markdown("---")
+
+        st.subheader("⚠️ Tüm Veritabanını Temizle")
+
+        onay = st.checkbox("Tüm kayıtları silmek istediğimi onaylıyorum.")
+
+        if onay:
+
+            if st.button("🗑️ TÜM KAYITLARI SİL"):
+
+                cursor.execute("DELETE FROM islemler")
+
+                conn.commit()
+
+                st.success("Tüm kayıtlar silindi.")
+
+                st.rerun()
     
