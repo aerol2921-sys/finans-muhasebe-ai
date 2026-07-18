@@ -18,7 +18,7 @@ mod = st.sidebar.radio(
         "📈 Kıdemli Finansal Analist",
         "💼 Mali Müşavir & Akıllı Muhasebe",
         "🗂️ Geçmiş İşlemler Arşivi"
-    ]
+    ]   "🕵️ Harcama Dedektifi"
 )
 
 
