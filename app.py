@@ -86,41 +86,31 @@ if mod == "📈 Kıdemli Finansal Analist":
     if st.button("Kapsamlı Rapor Hazırla"):
         if varlik:
             with st.spinner("Yapay zeka bulut sunucularında analiz ediyor..."):
-                try:
-    chat_completion = client.chat.completions.create(
-        messages=[
-            {
-                "role": "system",
-                "content": """
-                Siz kişisel finans asistanısınız.
-                Kullanıcının sorusuna doğrudan cevap verin.
-                Gereksiz açıklama yapmayın.
-                Matematik işlemi varsa sonucu hesaplayın.
-                """
-            },
-            {
-                "role": "user",
-                "content": f"Kullanıcı sorusu: {girdi}"
-            }
-        ],
-        model="llama-3.3-70b-versatile"
-    )
+                      try:
+            chat_completion = client.chat.completions.create(
+                messages=[
+                    {
+                        "role": "system",
+                        "content": """
+                        Siz kişisel finans asistanısınız.
+                        Kullanıcının sorusuna doğrudan cevap verin.
+                        Gereksiz açıklama yapmayın.
+                        Matematik işlemi varsa sonucu hesaplayın.
+                        """
+                    },
+                    {
+                        "role": "user",
+                        "content": f"Kullanıcı sorusu: {girdi}"
+                    }
+                ],
+                model="llama-3.3-70b-versatile"
+            )
 
-    st.info("✨ Mali Müşavir Analizi:")
-    st.write(chat_completion.choices[0].message.content)
+            st.info("✨ Mali Müşavir Analizi:")
+            st.write(chat_completion.choices[0].message.content)
 
-except Exception as e:
-    st.error(f"Hata: {e}")
-    st.info("✨ Mali Müşavir Analizi:")
-    st.write(chat_completion.choices[0].message.content)
-
-except Exception as e:
-    st.error(f"Hata: {e}")
-                    
-                    st.success("✨ Rapor Başarıyla Hazırlandı:")
-                    st.write(chat_completion.choices[0].message.content)
-                except Exception as e:
-                    st.error(f"Sistem Hatası: {e}")
+        except Exception as e:
+            st.error(f"Hata: {e}")
         else:
             st.warning("Lütfen bir varlık ismi giriniz.")
 
