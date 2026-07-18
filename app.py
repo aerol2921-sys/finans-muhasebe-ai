@@ -1,4 +1,5 @@
-import streamlit as st
+
+   import streamlit as st
 from groq import Groq
 import sqlite3
 import re
@@ -34,6 +35,7 @@ st.set_page_config(page_title="Finans & Muhasebe AI", page_icon="📈", layout="
 st.sidebar.title("🤖 Yapay Zeka Menüsü")
 mod = st.sidebar.radio("Çalışma Modunu Seçiniz:", ["📈 Kıdemli Finansal Analist", "💼 Mali Müşavir & Muhasebe Asistanı"])
 
+# 1. FONKSİYONDAKİ SIFIR DÜZELTİLDİ
 def yapay_zeka_bütce_analizcisi(metin):
     try:
         response = client.chat.completions.create(
@@ -54,8 +56,8 @@ def yapay_zeka_bütce_analizcisi(metin):
             ],
             model="llama-3.3-70b-versatile"
         )
-        # HATA BURADA KESİN OLARAK DÜZELTİLDİ:
-        return response.choices.message.content.strip()
+        # SIFIR HATASI BURADA KESİN OLARAK DÜZELTİLDİ:
+        return response.choices[0].message.content.strip()
     except:
         return None
 
@@ -74,13 +76,14 @@ if mod == "📈 Kıdemli Finansal Analist":
                 try:
                     chat_completion = client.chat.completions.create(
                         messages=[
-                            {"role": "system", "content": "Sen kıdemli bir Piyasa Analistisin. Karşındaki kişiye daima son derece resmi, kurumsal ve kusursuz bir Türkçe ile ('Siz') hitap et. Araya asla yabancı kelimeler karıştırma. Raporunu 'Temel Görünüm', 'Destek/Direnç Seviyeleri' ve 'Yatırımcı Psikolojisi' as 3 net başlığa ayır. Sonuna mutlaka 'Yatırım Tavsiyesi Değildir' uyarısı ekle."},
+                            {"role": "system", "content": "Sen kıdemli bir Piyasa Analistisin. Karşındaki kişiye daima son derece resmi, kurumsal ve kusursuz bir Türkçe ile ('Siz') hitap et. Araya asla yabancı kelimeler karıştırma. Raporunu 'Temel Görünüm', 'Destek/Direnç Seviyeleri' ve 'Yatırımcı Psikolojisi' olarak 3 net başlığa ayır. Sonuna mutlaka 'Yatırım Tavsiyesi Değildir' uyarısı ekle."},
                             {"role": "user", "content": f"Varlık: {varlik}. Lütfen resmi piyasa raporunu kaleme alınız."}
                         ],
                         model="llama-3.3-70b-versatile"
                     )
                     st.success("✨ Rapor Başarıyla Hazırlandı:")
-                    st.write(chat_completion.choices.message.content)
+                    # BURADAKİ SIFIR DA SAĞLAMLAŞTIRILDI:
+                    st.write(chat_completion.choices[0].message.content)
                 except Exception as e:
                     st.error(f"Sistem Hatası: {e}")
         else:
@@ -95,8 +98,8 @@ else:
     cursor.execute("SELECT tip, miktar, kategori, aciklama, tarih FROM islemler")
     kayitlar = cursor.fetchall()
     
-    toplam_gelir = sum(row for row in kayitlar if row == "Gelir")
-    toplam_gider = sum(row for row in kayitlar if row == "Gider")
+    toplam_gelir = sum(row[1] for row in kayitlar if row[0] == "Gelir")
+    toplam_gider = sum(row[1] for row in kayitlar if row[0] == "Gider")
     net_durum = toplam_gelir - toplam_gider
     
     col1, col2, col3 = st.columns(3)
@@ -114,7 +117,7 @@ else:
     
     if st.button("Veriyi İşle ve Analiz Et"):
         if girdi:
-            if any(k in girdi.lower() for k in ["gelir", "gider", "kazandım", "ödedim", "harcadım", "geldi"]):
+            if any(k in girdi.lower() for k in ["gelir", "gider", "kazandım", "ödedim", "harcadım", "geldi", "borç"]):
                 with st.spinner("Yapay zeka bütçeyi kuruşu kuruşuna parçalıyor..."):
                     analiz_sonucu = yapay_zeka_bütce_analizcisi(girdi)
                     if analiz_sonucu:
@@ -123,9 +126,9 @@ else:
                             if ":" in satir:
                                 parcalar = satir.split(":")
                                 if len(parcalar) == 3:
-                                    v_tip = parcalar.strip()
-                                    v_miktar = float(parcalar.strip())
-                                    v_kategori = parcalar.strip()
+                                    v_tip = parcalar[0].strip()
+                                    v_miktar = float(parcalar[1].strip())
+                                    v_kategori = parcalar[2].strip()
                                     tarih_su_an = datetime.now().strftime("%Y-%m-%d %H:%M")
                                     
                                     cursor.execute("INSERT INTO islemler (tip, miktar, kategori, aciklama, tarih) VALUES (?, ?, ?, ?, ?)",
@@ -138,14 +141,14 @@ else:
                 try:
                     chat_completion = client.chat.completions.create(
                         messages=[
-                            {"role": "system", "content": "Sen uluslararası standartlara hakim, resmi ve entelektüel bir Kıdemli Mali Müşavir ve Matematik Profesörüsün. Kullanıcıya daima resmi bir Türkçe ile ('Siz') hitap et. Dil sızıntısı yapma, araya asla İngilizce veya İspanyolca kelimeler karıştırma. Matematiksel problemleri adım adım akademik ciddiyetle çöz."},
-                            {"role": "user", "content": f"Soru/Veri: {girdi}. Lütfen kurumsal dilde yanıtlayınız."}
+                            {"role": "system", "content": "Sen uluslararası standartlara hakim, resmi ve entelektüel bir Kıdemli Mali Müşavir and Matematik Profesörüsün. Kullanıcıya daima resmi bir Türkçe ile ('Siz') hitap et. Dil sızıntısı yapma, araya asla İngilizce veya İspanyolca kelimeler karıştırma. Matematiksel problemleri adım adım akademik ciddiyetle çöz."},
+                            {"role": "user", "content": f"Soru/Veri: {girdi} Lütfen kurumsal dilde yanıtlayınız."}
                         ],
                         model="llama-3.3-70b-versatile"
                     )
                     st.info("✨ Mali Müşavir ve Profesör Analizi:")
-                    # BURADAKİ ANA İNDEKS DE SAĞLAMLAŞTIRILDI:
-                    st.write(chat_completion.choices.message.content)
+                    # 2. ANA FONKSİYONDAKİ SIFIR DA BURADA DÜZELTİLDİ:
+                    st.write(chat_completion.choices[0].message.content)
                 except Exception as e:
                     st.error(f"Hata: {e}")
                     
