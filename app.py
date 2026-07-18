@@ -87,13 +87,30 @@ if mod == "📈 Kıdemli Finansal Analist":
         if varlik:
             with st.spinner("Yapay zeka bulut sunucularında analiz ediyor..."):
                 try:
-                    chat_completion = client.chat.completions.create()
-    messages=[{"role": "system","content": """Siz kişisel finans asistanısınız.Kullanıcının sorusuna doğrudan cevap verin.
-Gereksiz açıklama, rapor, uzun analiz yapmayın.
-Önce kullanıcının istediği sonucu verin.
-Eğer matematik işlemi varsa kendiniz hesaplayın.
-"""}{"role": "user", "content": f"Varlık: {varlik}. Lütfen resmi piyasa raporunu kaleme alınız."},]
-                        model="llama-3.3-70b-versatile"
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "system",
+                "content": """
+                Siz kişisel finans asistanısınız.
+                Kullanıcının sorusuna doğrudan cevap verin.
+                Gereksiz açıklama yapmayın.
+                Matematik işlemlerini hesaplayarak sonucu verin.
+                """
+            },
+            {
+                "role": "user",
+                "content": f"Kullanıcı sorusu: {girdi}"
+            }
+        ],
+        model="llama-3.3-70b-versatile"
+    )
+
+    st.info("✨ Mali Müşavir Analizi:")
+    st.write(chat_completion.choices[0].message.content)
+
+except Exception as e:
+    st.error(f"Hata: {e}")
                     
                     st.success("✨ Rapor Başarıyla Hazırlandı:")
                     st.write(chat_completion.choices[0].message.content)
