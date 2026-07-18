@@ -55,6 +55,7 @@ def yapay_zeka_bütce_analizcisi(metin):
             model="llama-3.3-70b-versatile"
         )
         return response.choices.message.content.strip()
+
     except:
         return None
 
