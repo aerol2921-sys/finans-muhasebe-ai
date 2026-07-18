@@ -87,15 +87,15 @@ if mod == "📈 Kıdemli Finansal Analist":
         if varlik:
             with st.spinner("Yapay zeka bulut sunucularında analiz ediyor..."):
                 try:
-                     chat_completion = client.chat.completions.create(
-                         messages=[
-                             {
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
                 "role": "system",
                 "content": """
                 Siz kişisel finans asistanısınız.
                 Kullanıcının sorusuna doğrudan cevap verin.
                 Gereksiz açıklama yapmayın.
-                Matematik işlemlerini hesaplayarak sonucu verin.
+                Matematik işlemi varsa sonucu hesaplayın.
                 """
             },
             {
@@ -106,6 +106,11 @@ if mod == "📈 Kıdemli Finansal Analist":
         model="llama-3.3-70b-versatile"
     )
 
+    st.info("✨ Mali Müşavir Analizi:")
+    st.write(chat_completion.choices[0].message.content)
+
+except Exception as e:
+    st.error(f"Hata: {e}")
     st.info("✨ Mali Müşavir Analizi:")
     st.write(chat_completion.choices[0].message.content)
 
