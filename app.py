@@ -3,7 +3,7 @@ import streamlit as st
 from modules.finans import finans_sayfasi
 from modules.muhasebe import muhasebe_sayfasi
 from modules.arsiv import arsiv_sayfasi
-
+from modules.analiz import anormal_harcama_sayfasi
 st.set_page_config(
     page_title="Finans & Muhasebe AI",
     page_icon="📈",
@@ -30,3 +30,5 @@ elif mod == "💼 Mali Müşavir & Akıllı Muhasebe":
 
 elif mod == "🗂️ Geçmiş İşlemler Arşivi":
     arsiv_sayfasi()
+elif mod == "🕵️ Harcama Dedektifi":
+    anormal_harcama_sayfasi()
