@@ -4,11 +4,12 @@ import sqlite3
 import re
 from datetime import datetime
 import pandas as pd
+import plotly.express as px  # Yeni eklenen lüks grafik kütüphanesi
 
 # ==============================================================================
 # 1. API VE VERİTABANI BAĞLANTILARI
 # ==============================================================================
-API_ANAHTARI = ""
+API_ANAHTARI = st.secrets["groq_api_key"]
 client = Groq(api_key=API_ANAHTARI)
 
 conn = sqlite3.connect("muhasebe_defteri.db", check_same_thread=False)
@@ -30,11 +31,9 @@ conn.commit()
 # ==============================================================================
 st.set_page_config(page_title="Finans & Muhasebe AI", page_icon="📈", layout="wide")
 
-# Sol menü (Sidebar) üzerinden mod seçimi
 st.sidebar.title("🤖 Yapay Zeka Menüsü")
 mod = st.sidebar.radio("Çalışma Modunu Seçiniz:", ["📈 Kıdemli Finansal Analist", "💼 Mali Müşavir & Muhasebe Asistanı"])
 
-# Yardımcı Fonksiyonlar
 def yapay_zekaya_kategorize_ettir(metin):
     try:
         response = client.chat.completions.create(
@@ -47,7 +46,7 @@ def yapay_zekaya_kategorize_ettir(metin):
             ],
             model="llama-3.3-70b-versatile"
         )
-        return response.choices[0].message.content.strip()
+        return response.choices.message.content.strip()
     except:
         return "Diğer"
 
@@ -72,7 +71,7 @@ if mod == "📈 Kıdemli Finansal Analist":
                         model="llama-3.3-70b-versatile"
                     )
                     st.success("✨ Rapor Başarıyla Hazırlandı:")
-                    st.write(chat_completion.choices[0].message.content)
+                    st.write(chat_completion.choices.message.content)
                 except Exception as e:
                     st.error(f"Sistem Hatası: {e}")
         else:
@@ -84,7 +83,6 @@ if mod == "📈 Kıdemli Finansal Analist":
 else:
     st.title("💼 Kıdemli Mali Müşavir & Akıllı Muhasebe Defteri")
     
-    # Veritabanından mevcut verileri çekelim
     cursor.execute("SELECT tip, miktar, kategori, aciklama, tarih FROM islemler")
     kayitlar = cursor.fetchall()
     
@@ -92,7 +90,6 @@ else:
     toplam_gider = sum(row[1] for row in kayitlar if row[0] == "Gider")
     net_durum = toplam_gelir - toplam_gider
     
-    # Üst Kısım: Renkli Finansal Kartlar (KPI)
     col1, col2, col3 = st.columns(3)
     col1.metric("💰 Toplam Gelir", f"{toplam_gelir:,.2f} TL")
     col2.metric("📉 Toplam Gider", f"{toplam_gider:,.2f} TL")
@@ -109,7 +106,6 @@ else:
     
     if st.button("Veriyi İşle ve Analiz Et"):
         if girdi:
-            # Gelir / Gider Giriş Analizi
             if any(k in girdi.lower() for k in ["gelir", "gider", "kazandım", "ödedim", "harcadım", "geldi"]):
                 rakamlar = re.findall(r'\d+', girdi)
                 if rakamlar:
@@ -123,30 +119,57 @@ else:
                                        (tip, miktar, kategori, girdi, tarih_su_an))
                         conn.commit()
                     st.success(f"✅ Başarıyla Kaydedildi: {miktar} TL {tip} olarak '{kategori}' kategorisine işlendi! Sayfayı yenileyebilirsiniz.")
+                    st.rerun()
                 else:
                     st.warning("Cümlenin içinde sayısal bir miktar bulunamadı.")
             
-            # Normal Yapay Zeka Muhasebe / Matematik Yanıtı
             with st.spinner("Mali müşavir analiz raporu hazırlıyor..."):
                 try:
                     chat_completion = client.chat.completions.create(
                         messages=[
-                            {"role": "system", "content": "Sen uluslararası standartlara hakim, resmi ve entelektüel bir Kıdemli Mali Müşavir ve Matematik Profesörüsün. Kullanıcıya daima resmi bir Türkçe ile ('Siz') hitap et. Dil sızıntısı yapma, araya asla İngilizce veya İspanyolca (empresa, company vb.) kelimeler karıştırma. Matematiksel problemleri adım adım akademik ciddiyetle çöz."},
+                            {"role": "system", "content": "Sen uluslararası standartlara hakim, resmi ve entelektüel bir Kıdemli Mali Müşavir ve Matematik Profesörüsün. Kullanıcıya daima resmi bir Türkçe ile ('Siz') hitap et. Dil sızıntısı yapma, araya asla İngilizce veya İspanyolca kelimeler karıştırma. Matematiksel problemleri adım adım akademik ciddiyetle çöz."},
                             {"role": "user", "content": f"Soru/Veri: {girdi}. Lütfen kurumsal dilde yanıtlayınız."}
                         ],
                         model="llama-3.3-70b-versatile"
                     )
                     st.info("✨ Mali Müşavir ve Profesör Analizi:")
-                    st.write(chat_completion.choices[0].message.content)
+                    st.write(chat_completion.choices.message.content)
                 except Exception as e:
                     st.error(f"Hata: {e}")
                     
     st.markdown("---")
     
-    # Alt Kısım: Veritabanı Tablosu Gösterimi
-    st.subheader("📊 Kayıtlı Muhasebe Defteri Tablosu")
+    # ==============================================================================
+    # 5. YENİ BÖLÜM: CANLI GÖRSEL GRAFİKLER
+    # ==============================================================================
     if kayitlar:
         df = pd.DataFrame(kayitlar, columns=["İşlem Tipi", "Miktar (TL)", "Kategori", "Açıklama", "Tarih"])
+        
+        st.subheader("📊 Canlı Finansal Grafik Analizleri")
+        grafik_col1, grafik_col2 = st.columns(2)
+        
+        # Grafik 1: Kategorilere Göre Harcama Dağılımı (Pasta Grafiği)
+        gider_df = df[df["İşlem Tipi"] == "Gider"]
+        if not gider_df.empty:
+            fig_pie = px.pie(gider_df, values="Miktar (TL)", names="Kategori", 
+                             title="📈 Harcamaların Kategorilere Göre Dağılımı",
+                             hole=0.4, color_discrete_sequence=px.colors.sequential.RdBu)
+            grafik_col1.plotly_chart(fig_pie, use_container_width=True)
+        else:
+            grafik_col1.info("Pasta grafiğinin çizilebilmesi için henüz bir 'Gider' kaydı bulunmamaktadır.")
+            
+        # Grafik 2: Zaman İçindeki Gelir/Gider Dengesi (Çizgi Grafiği)
+        df_sorted = df.sort_values(by="Tarih")
+        fig_line = px.line(df_sorted, x="Tarih", y="Miktar (TL)", color="İşlem Tipi",
+                           title="📉 Zaman İçindeki Nakit Akışı Trendi",
+                           markers=True, color_discrete_map={"Gelir": "green", "Gider": "red"})
+        grafik_col2.plotly_chart(fig_line, use_container_width=True)
+        
+        st.markdown("---")
+        
+        # Alt Kısım: Veritabanı Tablosu Gösterimi
+        st.subheader("📊 Kayıtlı Muhasebe Defteri Tablosu")
         st.dataframe(df, use_container_width=True)
     else:
         st.info("Defterinizde henüz kayıtlı bir işlem bulunmamaktadır.")
+
