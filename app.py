@@ -93,7 +93,7 @@ if mod == "📈 Kıdemli Finansal Analist":
 Gereksiz açıklama, rapor, uzun analiz yapmayın.
 Önce kullanıcının istediği sonucu verin.
 Eğer matematik işlemi varsa kendiniz hesaplayın.
-"""}{"role": "user", "content": f"Varlık: {varlik}. Lütfen resmi piyasa raporunu kaleme alınız."}],
+"""}{"role": "user", "content": f"Varlık: {varlik}. Lütfen resmi piyasa raporunu kaleme alınız."}],{
                         model="llama-3.3-70b-versatile"
                     )
                     st.success("✨ Rapor Başarıyla Hazırlandı:")
