@@ -3,3 +3,4 @@ sympy
 pandas
 streamlit
 plotly
+kagglehub
