@@ -1,5 +1,5 @@
 import streamlit as st
-from modules.sabit_giderler import sabit_giderler_sayfasi
+from modules.sabit_giderler import sabit_gider_sayfasi
 from modules.sabit_gelir import sabit_gelir_sayfasi
 from modules.finans import finans_sayfasi
 from modules.muhasebe import muhasebe_sayfasi
@@ -44,4 +44,4 @@ elif mod == "🕵️ Harcama Dedektifi":
 elif mod == "💼 Sabit Gelirler":
     sabit_gelir_sayfasi()
 elif mod == "🏠 Sabit Giderler":
-    sabit_giderler_sayfasi()
+    sabit_gider_sayfasi()
