@@ -88,3 +88,14 @@ CREATE TABLE IF NOT EXISTS sabit_gelirler(
 """)
 
 conn.commit()
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS sabit_giderler(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ad TEXT,
+    kategori TEXT,
+    tutar REAL,
+    odeme_gunu INTEGER
+)
+""")
+
+conn.commit()
