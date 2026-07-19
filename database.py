@@ -78,3 +78,13 @@ def tumunu_sil():
 
 
 tablo_olustur()
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS sabit_gelirler(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ad TEXT,
+    tutar REAL,
+    odeme_gunu INTEGER
+)
+""")
+
+conn.commit()
