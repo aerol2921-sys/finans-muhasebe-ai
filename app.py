@@ -44,4 +44,4 @@ elif mod == "🕵️ Harcama Dedektifi":
 elif mod == "💼 Sabit Gelirler":
     sabit_gelir_sayfasi()
 elif mod == "🏠 Sabit Giderler":
-    sabit_gider_sayfasi()
+    sabit_giderler_sayfasi()
