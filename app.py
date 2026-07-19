@@ -1,5 +1,5 @@
 import streamlit as st
-
+from modules.sabit_gider import sabit_gider_sayfasi
 from modules.sabit_gelir import sabit_gelir_sayfasi
 from modules.finans import finans_sayfasi
 from modules.muhasebe import muhasebe_sayfasi
@@ -23,7 +23,10 @@ mod = st.sidebar.radio(
         "🗂️ Geçmiş İşlemler Arşivi",
         "🕵️ Harcama Dedektifi",
         "💼 Sabit Gelirler"
+        "🏠 Sabit Giderler",
     ]
+    
+    
 )
 
 if mod == "📈 Kıdemli Finansal Analist":
@@ -40,3 +43,5 @@ elif mod == "🕵️ Harcama Dedektifi":
 
 elif mod == "💼 Sabit Gelirler":
     sabit_gelir_sayfasi()
+elif mod == "🏠 Sabit Giderler":
+    sabit_gider_sayfasi()
