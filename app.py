@@ -20,20 +20,7 @@ mod = st.sidebar.radio(
         "📈 Kıdemli Finansal Analist",
         "💼 Mali Müşavir & Akıllı Muhasebe",
         "🗂️ Geçmiş İşlemler Arşivi",
-        "🕵️ Harcama Dedektifi"
-    ]   "💼 Sabit Gelirler",
+        "🕵️ Harcama Dedektifi",
+        "💼 Sabit Gelirler"
+    ]
 )
-
-if mod == "📈 Kıdemli Finansal Analist":
-    finans_sayfasi()
-
-elif mod == "💼 Mali Müşavir & Akıllı Muhasebe":
-    muhasebe_sayfasi()
-
-elif mod == "🗂️ Geçmiş İşlemler Arşivi":
-    arsiv_sayfasi()
-
-elif mod == "🕵️ Harcama Dedektifi":
-    anormal_harcama_sayfasi()
-elif mod == "💼 Sabit Gelirler":
-    sabit_gelir_sayfasi()
