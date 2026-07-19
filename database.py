@@ -9,6 +9,8 @@ cursor = conn.cursor()
 
 
 def tablo_olustur():
+
+    # Ana işlemler
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS islemler (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,10 +22,36 @@ def tablo_olustur():
     )
     """)
 
+
+    # Sabit gelirler
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS sabit_gelirler(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ad TEXT,
+        tutar REAL,
+        odeme_gunu INTEGER
+    )
+    """)
+
+
+    # Sabit giderler
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS sabit_giderler(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ad TEXT,
+        kategori TEXT,
+        tutar REAL,
+        odeme_gunu INTEGER
+    )
+    """)
+
+
     conn.commit()
 
 
+
 def kayit_ekle(tip, miktar, kategori, aciklama, tarih):
+
     cursor.execute("""
     INSERT INTO islemler
     (tip, miktar, kategori, aciklama, tarih)
@@ -40,7 +68,9 @@ def kayit_ekle(tip, miktar, kategori, aciklama, tarih):
     conn.commit()
 
 
+
 def tum_kayitlar():
+
     cursor.execute("""
     SELECT tip, miktar, kategori, aciklama, tarih
     FROM islemler
@@ -50,7 +80,9 @@ def tum_kayitlar():
     return cursor.fetchall()
 
 
+
 def tum_kayitlar_idli():
+
     cursor.execute("""
     SELECT id, tip, miktar, kategori, aciklama, tarih
     FROM islemler
@@ -60,7 +92,9 @@ def tum_kayitlar_idli():
     return cursor.fetchall()
 
 
+
 def kayit_sil(id):
+
     cursor.execute(
         "DELETE FROM islemler WHERE id=?",
         (id,)
@@ -69,7 +103,9 @@ def kayit_sil(id):
     conn.commit()
 
 
+
 def tumunu_sil():
+
     cursor.execute(
         "DELETE FROM islemler"
     )
@@ -77,27 +113,6 @@ def tumunu_sil():
     conn.commit()
 
 
+
+# Uygulama açılırken tablolar oluşur
 tablo_olustur()
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS sabit_gelirler(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    ad TEXT,
-    tutar REAL,
-    odeme_gunu INTEGER
-)
-""")
-
-conn.commit()
-
-tablo_olustur()
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS sabit_giderler(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    ad TEXT,
-    kategori TEXT,
-    tutar REAL,
-    odeme_gunu INTEGER
-)
-""")
-
-conn.commit()
