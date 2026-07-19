@@ -24,3 +24,8 @@ mod = st.sidebar.radio(
         "💼 Sabit Gelirler"
     ]
 )
+elif mod == "🕵️ Harcama Dedektifi":
+    anormal_harcama_sayfasi()
+
+elif mod == "💼 Sabit Gelirler":
+    sabit_gelir_sayfasi()
