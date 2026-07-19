@@ -1,5 +1,5 @@
 import streamlit as st
-from modules.sabit_gider import sabit_gider_sayfasi
+from modules.sabit_gider import sabit_giderler_sayfasi
 from modules.sabit_gelir import sabit_gelir_sayfasi
 from modules.finans import finans_sayfasi
 from modules.muhasebe import muhasebe_sayfasi
