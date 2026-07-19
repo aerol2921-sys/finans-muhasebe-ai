@@ -1,5 +1,6 @@
 import streamlit as st
 
+from modules.sabit_gelir import sabit_gelir_sayfasi
 from modules.finans import finans_sayfasi
 from modules.muhasebe import muhasebe_sayfasi
 from modules.arsiv import arsiv_sayfasi
